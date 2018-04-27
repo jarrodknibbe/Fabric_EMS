@@ -75,4 +75,19 @@ void setup() {
 //to update the timers. 
 void loop() {
  if (board.step()) create_timers();
+
+ // Check whether any control input has been given
+ // Use this to programmatically update the stimulation parameters
+ // Format of updates: 'nc, a, f, p' (e.g. 1c 5 100 50 updates channel 1 to amp 5, freq 100 and pwm 50)
+ if (Serial.available()){
+    int channelVal = Serial.parseInt();
+    int labelChan = Serial.read();
+    int commanda = Serial.parseInt();
+    int commandf = Serial.parseInt();
+    int commandp = Serial.parseInt();
+
+    if (labelChan == 'c') board.setParameters(channelVal, commandf, commandp, commanda);
+  }
+
+  delay(20);
 }
