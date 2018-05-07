@@ -27,7 +27,7 @@ void frequency_action_channel2()
 
 //The frequency functions, when they are triggered, then start pulse width clocks
 //These clocks control the shape of the stimulation. At the moment,
-//they push the signal high, then low, then off. Creating a biphasic square wave. 
+//they push the signal high, then low, then off. Creating a biphasic square wave.
 //You could experiment with signal shape, but changing the response of the
 //pulse step function.
 void pwm_action_channel1()
@@ -45,17 +45,21 @@ void pwm_action_channel2()
 }
 
 //This function sets up the frequency triggers to run at the desired frequency
-//This function also handles any update to frequency. 
+//This function also handles any update to frequency.
 void create_timers()
 {
-  Serial.println("Create timers");
+  Serial.print("---> Created New Timers (Channel 1: ");
+  Serial.print((1. /  (256 - board.getChannelfreq(0))) * 1000000.);
+  Serial.print(", Channel 2: ");
+  Serial.print((1. / (256 - board.getChannelfreq(1))) * 1000000.);
+  Serial.print(")");
   freqTimer1.end();
   freqTimer2.end();
   freqTimer1.priority(10);
   freqTimer2.priority(11);
 
-  freqTimer1.begin(frequency_action_channel1, (1. / board.getChannelfreq(0)) * 1000000.);
-  freqTimer2.begin(frequency_action_channel2, (1. / board.getChannelfreq(1)) * 1000000.);
+  freqTimer1.begin(frequency_action_channel1, (1. / (256 - board.getChannelfreq(0))) * 1000000.); //inverted the values here again, so that the frequency increases when turned clockwise 
+  freqTimer2.begin(frequency_action_channel2, (1. / (256 - board.getChannelfreq(1))) * 1000000.); //and decreases when turned counter clockwise (+1 to prevent infinity
 }
 
 //Set up the board, and the timers, and start some very light stimulation.
@@ -65,19 +69,19 @@ void setup() {
   board.init();
   create_timers();
 
-  board.stimulate(0,80,120,3);
-  board.stimulate(1,60,140,3);
+  board.stimulate(0, 80, 120, 3);
+  board.stimulate(1, 60, 140, 3);
 
   pinMode(A12, INPUT);
 
-  
-  
+
+
 }
 
 //This function runs all the time.
 //At the moment, it looks for updates to the blue potentiometers on the board
 //and the red switches. If it finds switch updates, it calls create_timers
-//to update the timers. 
+//to update the timers.
 void loop() {
   if (board.step()) create_timers();
 
@@ -92,7 +96,7 @@ void loop() {
     board.switchLED(2);
 
     //start stimulating with some parameters
-    board.stimulate(0,80, 140, 45);
+    board.stimulate(0, 80, 140, 45);
 
     //delay to allow some stimulation to happen
     delay(100);
@@ -108,13 +112,13 @@ void loop() {
   // Check whether any control input has been given
   // Use this to programmatically update the stimulation parameters
   // Format of updates: 'nc, a, f, p' (e.g. 1c 5 100 50 updates channel 1 to amp 5, freq 100 and pwm 50)
-  if (Serial.available()){
+  if (Serial.available()) {
     int channelVal = Serial.parseInt();
     int labelChan = Serial.read();
     int commanda = Serial.parseInt();
     int commandf = Serial.parseInt();
     int commandp = Serial.parseInt();
-
+    Serial.println("Values received");
     if (labelChan == 'c') board.setParameters(channelVal, commandf, commandp, commanda);
   }
 }

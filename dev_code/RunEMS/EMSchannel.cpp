@@ -19,10 +19,12 @@ void EMSchannel::init_channel(int _enable_pin, int _cur_shape_pin, int _chan_ID)
 bool EMSchannel::startStimulation(int _freq, int _pwm, int _amp)
 {
   stim_active = true;
-  if (_freq != -1){
+  if (_freq != -1) {
     freq = _freq;
     pulse_width = _pwm;
     amp = _amp;
+
+
     return true;
   }
 
@@ -52,27 +54,27 @@ int EMSchannel::get_amp()
 int EMSchannel::stimulation_step()
 {
 
-  if (stim_active){
+  if (stim_active) {
 
-    Serial.println("Stimming");
+    //  Serial.print("Stimming");
     //At first step, write the pulse shape HIGH
     if (pwm_state == 0)
     {
       digitalWrite(ems_enable, HIGH);
-      analogWrite(ems_current, (ANALOGMAX/2) + amp);
+      analogWrite(ems_current, (ANALOGMAX / 2) + amp);
     }
     else if (pwm_state == 1) //Then write the pulse shape low
     {
-      analogWrite(ems_current, (ANALOGMAX/2) - amp);
+      analogWrite(ems_current, (ANALOGMAX / 2) - amp);
     }
     else //Then disable the EMS, (so we don't care what shape the pulse is at this point)
     {
       digitalWrite(ems_enable, LOW);
     }
-  
+
     //Increment the pulse shape counter
     pwm_state++;
-  
+
     //Reset when all states complete
     if (pwm_state == 3)
     {
