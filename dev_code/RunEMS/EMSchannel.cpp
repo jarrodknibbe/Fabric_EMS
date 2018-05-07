@@ -102,6 +102,6 @@ bool EMSchannel::active()
 
 bool EMSchannel::check_change(int _freq, int _pwm, int _amp, int _threshold)
 {
-  if (abs(freq - _freq) >= _threshold || abs(pulse_width - _pwm) >= _threshold || abs(amp - _amp) >= _threshold) return true;
+  if (abs(freq - _freq) > _threshold || abs(pulse_width - _pwm) > _threshold || abs(amp - _amp) > _threshold) return true; //should be >=, but I was getting noise
   return false;
 }
