@@ -5,6 +5,13 @@
 //and includes the two EMS channels
 EMSboard board;
 
+//Matt
+int pinOut = A17; //Output pin of LED flash
+int pinIn = A16; //Input pin checking if button is pressed
+int timeStart; //Init of start of reaction time variable
+int timeEnd; //Init of end of reaction time variable
+int reactionTime = 0; //Init reaction time as 0
+
 //Intervaltimers are responsible for scheduling all stimulation
 //They have to sit here unfortunately due to programming challenges
 IntervalTimer freqTimer1, freqTimer2, pwmTimer1, pwmTimer2;
@@ -61,12 +68,15 @@ void create_timers()
 //Set up the board, and the timers, and start some very light stimulation.
 //(You probably couldn't feel it.)
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   board.init();
-  create_timers();
+  //create_timers();
 
   board.stimulate(0,80,120,3);
   board.stimulate(1,60,140,3);
+
+  pinMode(pinOut, OUTPUT); //Set LED pin as output
+  pinMode(pinIn, INPUT); //Set button pin as input
 }
 
 //This function runs all the time.
@@ -74,8 +84,7 @@ void setup() {
 //and the red switches. If it finds switch updates, it calls create_timers
 //to update the timers. 
 void loop() {
- if (board.step()) create_timers();
-
+ if (board.step()) create_timers(); 
  // Check whether any control input has been given
  // Use this to programmatically update the stimulation parameters
  // Format of updates: 'nc, a, f, p' (e.g. 1c 5 100 50 updates channel 1 to amp 5, freq 100 and pwm 50)
@@ -87,7 +96,40 @@ void loop() {
     int commandp = Serial.parseInt();
 
     if (labelChan == 'c') board.setParameters(channelVal, commandf, commandp, commanda);
-  }
 
+    if (labelChan == 't'){
+        board.setParameters(channelVal, commandf, commandp, commanda);
+        create_timers();
+    }
+        
+        
+        
+        // for (int i = 0; i <= 30; i++) {
+        //  delay(4000); // Wait 3 seconds before flashing the LED (this should be changed to a random time between 1-5 seconds)
+        digitalWrite(pinOut,HIGH); //After x time turn on LED
+        timeStart = millis(); //Start the timer as soon as LED turns on
+
+        delay(50); //EMS delay (theorhetically should be 205ms)
+        board.stimulate(channelVal,-1,commandp,commanda);
+        delay(10); // extend this pulse time.
+        board.stopStimulation(channelVal);
+  
+        while (digitalRead(pinIn) == LOW) {
+    
+        }
+  
+        timeEnd = millis(); //'stop' the timer as soon as button is pressed
+        digitalWrite(pinOut,LOW); //turn of LED
+        reactionTime = timeEnd - timeStart; //record time difference to find reaction time
+
+        Serial.print(reactionTime/1000.0, 3); //print reaction time to computer
+        Serial.print(" s, This is reaction time in seconds");
+        Serial.println(" ");
+        timeStart = 0; 
+        timeEnd = 0; //reset timer
+        
+       
+    }
+  
   delay(20);
 }

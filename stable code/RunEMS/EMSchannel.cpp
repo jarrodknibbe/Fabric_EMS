@@ -52,7 +52,7 @@ int EMSchannel::get_amp()
 int EMSchannel::stimulation_step()
 {
   //At first step, write the pulse shape HIGH
-  if (pwm_state == 0)
+  if (pwm_state == 0 && stim_active)//changed to also check for stim active
   {
     digitalWrite(ems_enable, HIGH);
     analogWrite(ems_current, (ANALOGMAX/2) + amp);

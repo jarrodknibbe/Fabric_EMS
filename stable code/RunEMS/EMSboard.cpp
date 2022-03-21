@@ -25,10 +25,11 @@ void EMSboard::init()
 
 void EMSboard::stimulate(int _channel, int _freq, int _pwm, int _amp)
 {
-  if (_freq != -1)
-  {
+  //if (_freq != -1)
+  //{
     channels[_channel].startStimulation(_freq, _pwm, _amp);
-  }
+  //}
+  
 }
 
 void EMSboard::stopStimulation(int _channel)
@@ -115,4 +116,3 @@ int EMSboard::getChannelamp(int _chan)
 {
   return channels[_chan].get_amp();
 }
-
